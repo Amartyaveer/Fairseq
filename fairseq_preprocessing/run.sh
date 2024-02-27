@@ -10,7 +10,7 @@ dev=0
 test=0
 tags="en hi"
 
-./parshoptio
+. parse_options.sh
 
 for tag in ${tags}; do
 
