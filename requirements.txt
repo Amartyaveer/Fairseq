@@ -1,0 +1,7 @@
+fairseq
+flashlight-text
+flashlight-sequence
+edit_distance
+jiwer
+librosa
+pydub
