@@ -1,4 +1,3 @@
-
 import sys
 sys.path.append('/home1/fairseq/')
 from examples.speech_recognition.w2l_decoder import W2lViterbiDecoder

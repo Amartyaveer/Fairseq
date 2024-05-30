@@ -4,7 +4,7 @@ from pathlib import Path
 import ast
 
 def read_files_for_dialect(folder, subset_path, dialect_path):
-  
+    
     assert os.path.exists(os.path.join(raw_data_folder, dialect_path))
     with open(os.path.join(raw_data_folder, dialect_path), 'r') as f:
         lines = f.read().split('\n')
@@ -18,6 +18,16 @@ def read_files_for_dialect(folder, subset_path, dialect_path):
     data = [Path(l.split('\t')[0]).stem for l in data]
     return data, lines
 
+def cvt_to_phn(text):
+    lexicon_pth = os.path.join(raw_data_folder, 'lexicon.lst')
+    assert os.path.exists(lexicon_pth)
+    with open(lexicon_pth, 'r') as f:
+        lexicon = f.read().splitlines()
+    phn_dict = {(i.split("\t")[1]).replace(" ", ""):i.split("\t")[0] for i in lexicon}
+    for idx, line in enumerate(text):
+        text[idx] = " ".join([phn_dict[i] if i in phn_dict else '<unk>' for i in line.split()])
+    return text
+
 def main():
     with open(os.path.join(folder, hyp_path), 'r') as f:
         hyps = f.read().split('\n')[:-1]
@@ -28,6 +38,10 @@ def main():
     indices = [int(string[string.index('(None-'):].replace("(None-", "").replace(")", "").strip()) for string in hyps]
     refs = [re.sub("[\(\[].*?[\)\]]", "", l).strip() for l in refs]
     hyps = [re.sub("[\(\[].*?[\)\]]", "", l).strip() for l in hyps]
+    
+    refs = cvt_to_phn(refs)
+    hyps = cvt_to_phn(hyps)
+    
     wer = jiwer.wer(refs, hyps)
     cer = jiwer.cer(refs, hyps)
     save_folder = os.path.join(results_dump)
@@ -70,6 +84,7 @@ if __name__ == '__main__':
     hyp_path = f'hypo.word-checkpoint_best.pt-{subset}.txt'
     ref_path = f'ref.word-checkpoint_best.pt-{subset}.txt'
     dialect_level_ed= ast.literal_eval(sys.argv[7])
+    
     main()
 
 
